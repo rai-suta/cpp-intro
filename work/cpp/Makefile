@@ -1,31 +1,32 @@
-gcc_options = -std=c++17 -Wall --pedantic-errors
-	# --pedantic-errors: Give an error where there is undefined behavior
+CXXFLAGS = -std=c++17 -Wall --pedantic-errors -I headers
+LDLIBS = -lstdc++fs
 
-vpath %.h ../headers
+vpath %.h ./headers
 
-program : main.cpp all.h.gch
-	g++ $(gcc_options) -include all.h $< -o $@
-
-.PHONY : run clean workspace
+%/main : %/main.cpp all.h.gch
+	g++ $(CXXFLAGS) -include all.h -o $@ $< $(LDLIBS)
 
 all.h.gch : all.h
-	g++ $(gcc_options) -x c++-header -o $@ $<
+	g++ $(CXXFLAGS) -x c++-header -o $@ $<
 
-run : program
-	cp ./program ~/
-	chmod 777 ~/program
-	~/program
+.PHONY : %.run
+%.run :
+	$(eval is_dir := file $* | grep directory$)
+	$(eval program := $(if $(shell $(is_dir)), $*/main, $*))
+	make $(program)
+	$(program)
 
+.PHONY : %.run-home
+%.run-home :
+	$(eval is_dir := file $* | grep directory$)
+	$(eval program := $(if $(shell $(is_dir)), $*/main, $*))
+	$(eval pg_name := $(notdir $(program)))
+	make $(program)
+	cp $(program) ~/$(pg_name)
+	chmod u+x ~/$(pg_name)
+	~/$(pg_name)
+
+.PHONY : clean
 clean :
-	rm -f ./program
 	rm -f ./all.h.gch
-
-workspace :
-ifdef DNAME
-	mkdir ${DNAME} -p
-	cp Makefile ${DNAME} -f
-	touch ${DNAME}/main.cpp
-else
-	@echo missing \"DNAME\" parametor.
-	@echo \> make $@ DNAME=\<dir_name\>
-endif
+	rm -f */main
