@@ -67,3 +67,12 @@
 #include <future>
 
 using namespace std::literals ;
+
+#ifdef __GNUC__
+ #if __GNUC__ < 7
+  #define user_add_std_byte
+ #endif
+#endif
+
+#include <user.h>
+
