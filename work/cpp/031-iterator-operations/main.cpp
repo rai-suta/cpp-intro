@@ -1,6 +1,8 @@
 // 031-iterator-operations
 
-// 出力イテレータの例
+//
+/// 出力イテレーター
+//
 struct cout_iterator
 {
 // --- ボイラープレートコード (言語仕様上必要だが、機能を持たないコード)
@@ -26,7 +28,9 @@ struct cout_iterator
   }
 } ;
 
-// 入力イテレーターの例
+//
+/// 入力イテレーター
+//
 template < typename T >
 struct cin_iterator
 {
@@ -74,6 +78,7 @@ struct cin_iterator
   value_type value ;
 } ;
 
+// 入力イテレーターは同値比較が出来る
 template < typename  T >
 bool operator ==( cin_iterator<T> const & l, cin_iterator<T> const & r)
 { return l.fail == r.fail ; }
@@ -84,17 +89,33 @@ bool operator !=( cin_iterator<T> const & l, cin_iterator<T> const & r)
 
 int main()
 {
-  std::vector<int> v = {1, 2, 3, 4, 5} ;
-  cout_iterator out ;
+  /// 出力イテレーター
+  std::cout << "<output iterator>"s << std::endl;
+  {
+    std::vector<int> v = {1, 2, 3, 4, 5} ;
+    cout_iterator out ;
 
-  std::copy( std::begin(v), std::end(v), out ) ;
+    std::copy( std::begin(v), std::end(v), out ) ;
+  }
+  std::cout << "<EOL>" << std::endl;
 
-  cin_iterator<int> input, fail(true) ;
-  std::vector<int> buffer ;
-  input++;
-  std::cout << *input << std::endl;
+  std::cout << std::endl;
 
-  // 'input' イテレータから 'buffer' へ push_back する
-  //std::copy( input, fail, std::back_inserter(buffer) ) ;
+  /// 入力イテレーター
+  std::cout << "<input iterator>"s << std::endl;
+  {
+    std::cout << " (e.g. <- 1 2 3 q)" << std::endl;
+    std::cout << " input <- "s;
+    cin_iterator<int> input, fail(true) ;
+    std::vector<int> buffer ;
+
+    std::copy( input, fail, std::back_inserter(buffer) ) ;
+
+    auto iter = buffer.begin();
+    std::cout << " buffer = ";
+    while (iter != buffer.end()) {
+      std::cout << *(iter++) << ",";
+    }
+  }
+  std::cout << "<EOL>" << std::endl;
 }
-
